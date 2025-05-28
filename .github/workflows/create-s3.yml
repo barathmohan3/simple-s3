@@ -11,6 +11,10 @@ on:
         options:
           - create
           - delete
+      bucket_name:
+        description: "S3 bucket name"
+        required: true
+        default: "my-simple-bucket"
 
 jobs:
   s3-job:
@@ -25,15 +29,19 @@ jobs:
 
       - name: Create or Delete S3 bucket
         run: |
-          BUCKET_NAME=my-simple-bucket-${{ github.run_id }}
+          BUCKET_NAME=${{ github.event.inputs.bucket_name }}
           echo "Bucket: $BUCKET_NAME"
           
           if [ "${{ github.event.inputs.action }}" = "create" ]; then
-            echo "Creating simple bucket..."
+            echo "Creating bucket..."
             aws s3 mb s3://$BUCKET_NAME
           elif [ "${{ github.event.inputs.action }}" = "delete" ]; then
-            echo "Deleting simple bucket..."
-            aws s3 rb s3://$BUCKET_NAME --force
+            echo "Deleting bucket..."
+            if aws s3 ls "s3://$BUCKET_NAME" 2>&1 | grep -q 'NoSuchBucket'; then
+              echo "Bucket does not exist. Nothing to delete."
+            else
+              aws s3 rb s3://$BUCKET_NAME --force
+            fi
           else
             echo "Unknown action"
             exit 1
