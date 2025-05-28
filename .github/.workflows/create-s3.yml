@@ -1,4 +1,4 @@
-name: Simple S3 Bucket Workflow
+name: Simple S3-Bucket Workflow
 
 on:
   workflow_dispatch:
