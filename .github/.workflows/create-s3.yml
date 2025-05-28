@@ -1,16 +1,7 @@
-name: Simple S3-Bucket Workflow
+name: Simple S3 Bucket Creator
 
 on:
   workflow_dispatch:
-    inputs:
-      action:
-        description: "Create or Delete"
-        required: true
-        default: "create"
-        type: choice
-        options:
-          - create
-          - delete
 
 jobs:
   s3-job:
@@ -23,18 +14,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Create or Delete S3 bucket
+      - name: Create S3 bucket
         run: |
           BUCKET_NAME=my-simple-bucket-${{ github.run_id }}
-          echo "Bucket: $BUCKET_NAME"
-          
-          if [ "${{ github.event.inputs.action }}" = "create" ]; then
-            echo "Creating simple bucket..."
-            aws s3 mb s3://$BUCKET_NAME
-          elif [ "${{ github.event.inputs.action }}" = "delete" ]; then
-            echo "Deleting simple bucket..."
-            aws s3 rb s3://$BUCKET_NAME --force
-          else
-            echo "Unknown action"
-            exit 1
-          fi
+          echo "Creating bucket: $BUCKET_NAME"
+          aws s3 mb s3://$BUCKET_NAME
